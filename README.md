@@ -1,4 +1,4 @@
-# Smart Radar Vision Glasses for Assistive Navigation 👓📡
+# Radar Vision Glasses for Assistive Navigation 👓📡
 
 ![Platform](https://img.shields.io/badge/Platform-Arduino%20Uno%20R3-blue)
 ![Category](https://img.shields.io/badge/Category-Assistive%20Technology-green)
