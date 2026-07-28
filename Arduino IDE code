@@ -1,0 +1,40 @@
+// Pin Definitions
+const int TriggerPin = 8;
+const int EchoPin = 9;
+
+void setup(void)
+{
+  pinMode(TriggerPin, OUTPUT);
+  pinMode(EchoPin, INPUT);
+  Serial.begin(9600);
+}
+
+void loop(void)
+{
+  // Read distance from the ultrasonic sensor
+  int distance = CalculateDistance();
+
+  // Output distance to the Serial Monitor
+  SerialOutput(distance);
+
+  // Short delay between readings
+  delay(50);
+}
+
+int CalculateDistance(void)
+{
+  digitalWrite(TriggerPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TriggerPin, LOW);
+  
+  long duration = pulseIn(EchoPin, HIGH);
+  float distance = duration * 0.017F;
+  
+  return int(distance);
+}
+
+void SerialOutput(const int distance)
+{
+  String distanceString = String(distance);
+  Serial.println("Distance: " + distanceString + " cm");
+}
