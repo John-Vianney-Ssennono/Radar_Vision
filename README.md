@@ -1,36 +1,38 @@
-# Smart Radar Glasses for Visually Impaired Navigation 👓📡
+# Smart Radar Vision Glasses for Assistive Navigation 👓📡
 
-![Platform](https://img.shields.io/badge/Platform-Arduino%20UNO-blue)
+![Platform](https://img.shields.io/badge/Platform-Arduino%20Uno%20R3-blue)
 ![Category](https://img.shields.io/badge/Category-Assistive%20Technology-green)
-![Status](https://img.shields.io/badge/Status-Prototype-orange)
+![Status](https://img.shields.io/badge/Status-Static%20Sensor%20Prototype-orange)
 
-An electronic assistive wearable designed to aid visually disadvantaged individuals. Using ultrasonic detection integrated directly into a pair of glasses, the device continuously scans the wearer's forward path to detect nearby obstacles and provides immediate real-time audio feedback to prevent collisions.
+An electronic assistive wearable designed to aid visually disadvantaged individuals by detecting obstacles and preventing collisions in real time. Mounted directly onto a pair of glasses, this system uses ultrasonic distance sensing to continuously monitor the wearer's path and provide immediate audio feedback via a buzzer.
 
 ---
 
 ## 📌 Project Overview
 
-Navigating unfamiliar or dynamic environments can pose significant safety challenges for individuals with visual impairments. These **Radar Vision Glasses** act as a hands-free proximity sensor. Mounted onto the frame, an ultrasonic transmitter/receiver emits high-frequency sound waves to measure distance. When an obstacle is detected within range, a integrated active buzzer alerts the wearer to stop or alter their path.
+For individuals with visual impairments, detecting obstacles at head or chest level can be challenging with traditional tools. These **Radar Vision Glasses** serve as a hands-free proximity scanner. 
+
+Unlike motorized radar systems that rely on servo sweeps, this streamlined prototype utilizes a **fixed, hand-directed ultrasonic sensor** mounted to the eyeglass frame. The wearer manually scans their environment by moving their head, allowing for direct, real-time spatial awareness without the added weight, noise, or power draw of a servo motor.
 
 ---
 
-## 🛠️ Hardware & Pin Configuration
+## 🛠️ Hardware Setup & Pin Mapping
 
-The system is powered by an **Arduino UNO** control module. Below is the precise pin-mapping derived from the hand design schematics:
+The circuit is controlled by an **Arduino Uno R3**. All components are wired according to the optimized schematic layout below:
 
-| Component | Component Pin | Arduino UNO Pin | Function / Wire Description |
+| Component | Component Pin | Arduino Uno Pin | Function / Description |
 | :--- | :--- | :--- | :--- |
-| **Arduino UNO** | `5V` | `5V [Power]` | System power line |
-| **Arduino UNO** | `GND` | `GND` | Common ground connection |
-| **Active Buzzer (Buz 1)** | `+` (Positive) | **Digital Pin 4** | Audio alert trigger |
-| **Active Buzzer (Buz 1)** | `-` (Ground) | **GND** | Ground |
-| **Ultrasonic Sensor (ULT-SENSOR-1)** | `VCC` | **5V** | 5V Power Supply |
-| **Ultrasonic Sensor (ULT-SENSOR-1)** | `Trig` (Sender) | **Digital Pin 10** | Ultrasonic pulse trigger output |
-| **Ultrasonic Sensor (ULT-SENSOR-1)** | `Echo` (Receiver)| **Digital Pin 11** | Echo pulse width receiver input |
-| **Ultrasonic Sensor (ULT-SENSOR-1)** | `GND` | **GND** | Ground |
+| **Arduino Uno R3** | `5V` | `5V` | System 5V Power Line |
+| **Arduino Uno R3** | `GND` | `GND` | Common Ground |
+| **HC-SR04 Ultrasonic Sensor** | `VCC` | `5V` | 5V Power Supply |
+| **HC-SR04 Ultrasonic Sensor** | `Trig` | **Digital Pin 8** | Ultrasonic Pulse Trigger Output |
+| **HC-SR04 Ultrasonic Sensor** | `Echo` | **Digital Pin 9** | Echo Pulse Receiver Input |
+| **HC-SR04 Ultrasonic Sensor** | `GND` | `GND` | Ground |
+| **Active Buzzer** | `+` (Positive) | **Digital Pin 4** | Audio Alert Output Signal |
+| **Active Buzzer** | `-` (Ground) | `GND` | Ground |
 
 ---
 
-## 📐 Mechanical & Wearable Design
+## 📐 Wearable Design & Mechanical Integration
 
-The system integrates electronic control directly onto a standard eyeglass frame structure:
+The components are integrated onto a standard eyeglass frame to keep the wearable lightweight and comfortable:
