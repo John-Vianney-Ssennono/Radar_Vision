@@ -1,0 +1,61 @@
+/*
+  C++ code makes the buzzer bipvwhen it receives current
+*/
+
+// Pins configuration
+const int pingPin = 7;     // 3-pin Ultrasonic sensor SIG pin
+const int buzzerPin = 8;   // Connect your Buzzer positive (+) terminal to Pin 8
+
+long duration;
+int distance;
+
+// Independent timer variables for the buzzer
+unsigned long previousBuzzerMillis = 0;
+const long buzzerInterval = 500;  // Beep interval in milliseconds (500ms ON / 500ms OFF)
+bool buzzerState = LOW;           // Current state of the buzzer
+
+void setup() {
+  pinMode(buzzerPin, OUTPUT);
+  Serial.begin(9600); // Initialize Serial Communication
+}
+
+void loop() {
+  // --- 1. BUZZER INDEPENDENT LOGIC ---
+  unsigned long currentMillis = millis();
+  
+  if (currentMillis - previousBuzzerMillis >= buzzerInterval) {
+    previousBuzzerMillis = currentMillis;  // Save the last time the buzzer toggled
+    
+    // Toggle the buzzer state
+    buzzerState = !buzzerState;
+    
+    if (buzzerState) {
+      tone(buzzerPin, 1000); // Turn buzzer ON at 1000 Hz frequency
+    } else {
+      noTone(buzzerPin);     // Turn buzzer OFF
+    }
+  }
+
+  // --- 2. ULTRASONIC SENSOR LOGIC (3-Pin Sensor) ---
+  // Step A: Send pulse OUT (Set pin as OUTPUT)
+  pinMode(pingPin, OUTPUT);
+  digitalWrite(pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(pingPin, LOW);
+
+  // Step B: Read pulse IN (Switch pin to INPUT)
+  pinMode(pingPin, INPUT);
+  duration = pulseIn(pingPin, HIGH);
+
+  // Calculate distance in cm
+  distance = duration * 0.034 / 2;
+
+  // Print to Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  delay(100); // Small delay to prevent serial flooding
+}
