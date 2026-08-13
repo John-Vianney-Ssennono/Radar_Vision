@@ -1,6 +1,6 @@
 // Pin Definitions
-const int TriggerPin = 8;
-const int EchoPin = 9;
+const int TriggerPin = 7;
+const int EchoPin = 7;
 
 void setup(void)
 {
