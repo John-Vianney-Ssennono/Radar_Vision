@@ -1,40 +1,75 @@
-// Pin Definitions
-const int TriggerPin = 7;
-const int EchoPin = 7;
+/*
+  C++ code to make the buzzer and the Ultrasonic sensor to work simultaneously to bip whenever there is an object close the sensor's detection distance to prevent collision
+*/
 
-void setup(void)
-{
-  pinMode(TriggerPin, OUTPUT);
-  pinMode(EchoPin, INPUT);
-  Serial.begin(9600);
+// --- PIN CONFIGURATION ---
+const int pingPin = 7;     // 3-pin Ultrasonic sensor SIG pin
+const int buzzerPin = 11;   // Piezo Buzzer connected to Pin 11
+
+// --- DISTANCE & TIMING VARIABLES ---
+long duration;
+int distance;
+
+// Proximity detection range (in centimeters)
+const int maxDistance = 100; // Trigger buzzer when object is within 100 cm
+const int minDistance = 5;   // Closest range limit
+
+// Non-blocking timer variables for the buzzer
+unsigned long previousBuzzerMillis = 0;
+bool buzzerState = LOW;
+
+void setup() {
+  pinMode(buzzerPin, OUTPUT);
+  Serial.begin(9600); // Initialize Serial Monitor for debugging
 }
 
-void loop(void)
-{
-  // Read distance from the ultrasonic sensor
-  int distance = CalculateDistance();
-
-  // Output distance to the Serial Monitor
-  SerialOutput(distance);
-
-  // Short delay between readings
-  delay(50);
-}
-
-int CalculateDistance(void)
-{
-  digitalWrite(TriggerPin, HIGH);
+void loop() {
+  // --- STEP 1: READ ULTRASONIC SENSOR (3-PIN) ---
+  // Send trigger pulse OUT
+  pinMode(pingPin, OUTPUT);
+  digitalWrite(pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
   delayMicroseconds(10);
-  digitalWrite(TriggerPin, LOW);
-  
-  long duration = pulseIn(EchoPin, HIGH);
-  float distance = duration * 0.017F;
-  
-  return int(distance);
-}
+  digitalWrite(pingPin, LOW);
 
-void SerialOutput(const int distance)
-{
-  String distanceString = String(distance);
-  Serial.println("Distance: " + distanceString + " cm");
+  // Read echo duration IN
+  pinMode(pingPin, INPUT);
+  duration = pulseIn(pingPin, HIGH);
+
+  // Calculate distance in centimeters
+  distance = duration * 0.034 / 2;
+
+  // Print distance to Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  // --- STEP 2: SYNC BUZZER WITH DISTANCE ---
+  // Only trigger the buzzer if an object is within maxDistance (100 cm)
+  if (distance > 0 && distance <= maxDistance) {
+    
+    // Map distance (5cm - 100cm) to beep interval delay (50ms fast - 600ms slow)
+    int beepInterval = map(distance, minDistance, maxDistance, 50, 600);
+    
+    // Non-blocking delay to toggle buzzer ON and OFF at mapped interval
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousBuzzerMillis >= beepInterval) {
+      previousBuzzerMillis = currentMillis;
+      
+      buzzerState = !buzzerState; // Switch ON/OFF
+      
+      if (buzzerState) {
+        tone(buzzerPin, 1000);   // Beep ON at 1000 Hz
+      } else {
+        noTone(buzzerPin);       // Beep OFF
+      }
+    }
+  } else {
+    // If no object is in range, turn the buzzer off completely
+    noTone(buzzerPin);
+    buzzerState = LOW;
+  }
+
+  delay(30); // Short delay for sensor stability
 }
