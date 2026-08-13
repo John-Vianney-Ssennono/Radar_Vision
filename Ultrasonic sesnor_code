@@ -1,0 +1,40 @@
+
+/*
+C++ code to make the Ultrasonic sensor work independently first before adding more components
+*/
+
+const int trigPin = 7;
+const int echoPin = 7;
+
+long duration;
+int distance;
+
+void setup() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  Serial.begin(9600); // Initialize Serial Communication
+}
+
+void loop() {
+  // Clear the trigger pin
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  // Send a 10 microsecond pulse to trigger pin
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  // Read the echo pin (duration of sound wave travel in microseconds)
+  duration = pulseIn(echoPin, HIGH);
+
+  // Calculate distance in centimeters (speed of sound = ~0.034 cm/us)
+  distance = duration * 0.034 / 2;
+
+  // Print to Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+
+  delay(200);
+}
