@@ -1,74 +1,67 @@
 /*
-  C++ code to make the buzzer and the Ultrasonic sensor to work simultaneously to bip whenever there is an object close the sensor's detection distance to prevent collision
+  Proximity Alert System: Ultrasonic Sensor + Buzzer + LED Sync
+  - Measures distance using a 3-pin ultrasonic sensor on Pin 7.
+  - Syncs both the Buzzer (Pin 11) and LED (Pin 13) to blink/beep faster as objects get closer.
+  - Uses non-blocking timing (millis) for continuous measurement without freezing.
 */
 
-// --- PIN CONFIGURATION ---
-const int pingPin = 7;     // 3-pin Ultrasonic sensor SIG pin
-const int buzzerPin = 11;   // Piezo Buzzer connected to Pin 11
+// --- HARDWARE PINS ---
+const int SENSOR_PIN = 7;   // 3-pin Ultrasonic SIG pin
+const int BUZZER_PIN = 11;  // Piezo Buzzer positive pin
+const int LED_PIN    = 13;  // Sync LED pin
 
-// --- DISTANCE & TIMING VARIABLES ---
-long duration;
-int distance;
+// --- THRESHOLDS & TIMING ---
+const int MAX_DISTANCE = 100; // Activation distance threshold (cm)
+const int MIN_DISTANCE = 5;   // Minimum distance limit (cm)
 
-// Proximity detection range (in centimeters)
-const int maxDistance = 100; // Trigger buzzer when object is within 100 cm
-const int minDistance = 5;   // Closest range limit
-
-// Non-blocking timer variables for the buzzer
-unsigned long previousBuzzerMillis = 0;
-bool buzzerState = LOW;
+unsigned long previousMillis = 0;
+bool alertState = LOW;
 
 void setup() {
-  pinMode(buzzerPin, OUTPUT);
-  Serial.begin(9600); // Initialize Serial Monitor for debugging
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+  Serial.begin(9600);
 }
 
 void loop() {
-  // --- STEP 1: READ ULTRASONIC SENSOR (3-PIN) ---
-  // Send trigger pulse OUT
-  pinMode(pingPin, OUTPUT);
-  digitalWrite(pingPin, LOW);
+  // 1. Measure Distance (3-Pin Ultrasonic Sensor)
+  pinMode(SENSOR_PIN, OUTPUT);
+  digitalWrite(SENSOR_PIN, LOW);
   delayMicroseconds(2);
-  digitalWrite(pingPin, HIGH);
+  digitalWrite(SENSOR_PIN, HIGH);
   delayMicroseconds(10);
-  digitalWrite(pingPin, LOW);
+  digitalWrite(SENSOR_PIN, LOW);
 
-  // Read echo duration IN
-  pinMode(pingPin, INPUT);
-  duration = pulseIn(pingPin, HIGH);
+  pinMode(SENSOR_PIN, INPUT);
+  long duration = pulseIn(SENSOR_PIN, HIGH);
+  int distance = duration * 0.034 / 2; // Convert to cm
 
-  // Calculate distance in centimeters
-  distance = duration * 0.034 / 2;
-
-  // Print distance to Serial Monitor
   Serial.print("Distance: ");
   Serial.print(distance);
   Serial.println(" cm");
 
-  // --- STEP 2: SYNC BUZZER WITH DISTANCE ---
-  // Only trigger the buzzer if an object is within maxDistance (100 cm)
-  if (distance > 0 && distance <= maxDistance) {
-    
-    // Map distance (5cm - 100cm) to beep interval delay (50ms fast - 600ms slow)
-    int beepInterval = map(distance, minDistance, maxDistance, 50, 600);
-    
-    // Non-blocking delay to toggle buzzer ON and OFF at mapped interval
-    unsigned long currentMillis = millis();
-    if (currentMillis - previousBuzzerMillis >= beepInterval) {
-      previousBuzzerMillis = currentMillis;
-      
-      buzzerState = !buzzerState; // Switch ON/OFF
-      
-      if (buzzerState) {
-        tone(buzzerPin, 1000);   // Beep ON at 1000 Hz
+  // 2. Synchronized Alert Logic (Buzzer + LED)
+  if (distance > 0 && distance <= MAX_DISTANCE) {
+    // Calculate alert interval (50ms = rapid pulse, 600ms = slow pulse)
+    int interval = map(distance, MIN_DISTANCE, MAX_DISTANCE, 50, 600);
+
+    // Toggle Buzzer & LED using non-blocking timer
+    if (millis() - previousMillis >= interval) {
+      previousMillis = millis();
+      alertState = !alertState;
+
+      digitalWrite(LED_PIN, alertState);
+      if (alertState) {
+        tone(BUZZER_PIN, 1000); // Buzzer ON (1000 Hz)
       } else {
-        noTone(buzzerPin);       // Beep OFF
+        noTone(BUZZER_PIN);     // Buzzer OFF
       }
     }
   } else {
-    // If no object is in range, turn the buzzer off completely
-    noTone(buzzerPin);
-    buzzerState = LOW;
+    // Object out of range: Turn off both Buzzer and LED
+    noTone(BUZZER_PIN);
+    digitalWrite(LED_PIN, LOW);
+    alertState = LOW;
   }
 
   delay(30); // Short delay for sensor stability
